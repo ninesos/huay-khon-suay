@@ -108,9 +108,142 @@
   .close-win:hover{transform:scale(1.05)}
   .error-msg{color:#e74c3c;text-align:center;padding:20px;font-size:.95rem}
   @media(max-width:99%){.input-row{flex-direction:column}.ticket-input{font-size:1.4rem;letter-spacing:5px}.lucky-number-display{font-size:2.5rem;letter-spacing:8px}}
+
+  /* ===== LOADING OVERLAY ===== */
+  #loadingOverlay{
+    position:fixed;inset:0;z-index:9999;
+    background:radial-gradient(ellipse at 50% 40%, #2a0d3a 0%, #0d0600 60%, #000 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity .8s ease, visibility .8s ease;
+  }
+  #loadingOverlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+  /* Orbiting ring */
+  .lo-orbit-wrap{position:relative;width:180px;height:180px;margin-bottom:32px}
+  .lo-orbit{
+    position:absolute;inset:0;border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:rgba(255,215,0,.9);
+    border-right-color:rgba(255,140,0,.5);
+    animation:loSpin 1.4s cubic-bezier(.4,0,.2,1) infinite;
+    filter:drop-shadow(0 0 8px rgba(255,215,0,.6));
+  }
+  .lo-orbit2{
+    position:absolute;inset:16px;border-radius:50%;
+    border:1.5px solid transparent;
+    border-bottom-color:rgba(255,100,200,.7);
+    border-left-color:rgba(200,100,255,.4);
+    animation:loSpin 2s cubic-bezier(.4,0,.2,1) infinite reverse;
+  }
+  .lo-orbit3{
+    position:absolute;inset:30px;border-radius:50%;
+    border:1px dashed rgba(255,215,0,.2);
+    animation:loSpin 6s linear infinite;
+  }
+  @keyframes loSpin{to{transform:rotate(360deg)}}
+
+  /* Logo in center */
+  .lo-logo{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  }
+  .lo-logo img{
+    width:88px;height:88px;border-radius:50%;
+    animation:loPulse 2s ease-in-out infinite;
+    filter:drop-shadow(0 0 18px rgba(255,165,0,.55));
+  }
+  @keyframes loPulse{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 18px rgba(255,165,0,.55))}
+    50%{transform:scale(1.06);filter:drop-shadow(0 0 30px rgba(255,165,0,.9))}
+  }
+
+  /* Floating diamonds */
+  .lo-gem{
+    position:absolute;width:8px;height:8px;
+    background:linear-gradient(135deg,#FFD700,#FF8C00);
+    transform:rotate(45deg);
+    animation:loGemFloat 3s ease-in-out infinite;
+    border-radius:1px;
+    opacity:.7;
+  }
+  .lo-gem:nth-child(1){top:8px;left:50%;margin-left:-4px;animation-delay:0s}
+  .lo-gem:nth-child(2){top:50%;right:8px;margin-top:-4px;animation-delay:.5s;background:linear-gradient(135deg,#ee82ee,#9b59b6)}
+  .lo-gem:nth-child(3){bottom:8px;left:50%;margin-left:-4px;animation-delay:1s}
+  .lo-gem:nth-child(4){top:50%;left:8px;margin-top:-4px;animation-delay:1.5s;background:linear-gradient(135deg,#ee82ee,#9b59b6)}
+  @keyframes loGemFloat{
+    0%,100%{transform:rotate(45deg) scale(1);opacity:.7}
+    50%{transform:rotate(45deg) scale(1.5);opacity:1}
+  }
+
+  /* Text area */
+  .lo-text-wrap{text-align:center}
+  .lo-title{
+    font-family:'Mitr',sans-serif;
+    font-size:1.6rem;font-weight:700;
+    background:linear-gradient(135deg,#FFD700,#FF6B00,#FFD700);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    letter-spacing:2px;margin-bottom:6px;
+  }
+  .lo-status{
+    color:rgba(255,200,100,.65);font-size:.88rem;
+    min-height:1.4em;transition:opacity .3s;
+  }
+  .lo-dots::after{
+    content:'';animation:loDots 1.2s steps(4,end) infinite;
+  }
+  @keyframes loDots{
+    0%{content:''}
+    25%{content:'.'}
+    50%{content:'..'}
+    75%{content:'...'}
+    100%{content:''}
+  }
+  .lo-retry-badge{
+    display:inline-block;
+    background:rgba(255,165,0,.12);border:1px solid rgba(255,165,0,.3);
+    border-radius:50px;padding:4px 14px;
+    font-size:.78rem;color:rgba(255,200,100,.7);
+    margin-top:10px;
+    animation:loBadgeFade .4s ease;
+  }
+  @keyframes loBadgeFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Particle stars */
+  .lo-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .lo-star{
+    position:absolute;width:2px;height:2px;background:#FFD700;border-radius:50%;
+    animation:loStarTwinkle var(--dur,3s) ease-in-out infinite;
+    animation-delay:var(--del,0s);
+    opacity:0;
+  }
+  @keyframes loStarTwinkle{
+    0%,100%{opacity:0;transform:scale(1)}
+    50%{opacity:.8;transform:scale(1.5)}
+  }
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay">
+  <div class="lo-stars" id="loStars"></div>
+  <div class="lo-orbit-wrap">
+    <div class="lo-orbit"></div>
+    <div class="lo-orbit2"></div>
+    <div class="lo-orbit3"></div>
+    <div class="lo-gem"></div>
+    <div class="lo-gem"></div>
+    <div class="lo-gem"></div>
+    <div class="lo-gem"></div>
+    <div class="lo-logo">
+      <img src="logo_huay_khon_suay.png" alt="logo">
+    </div>
+  </div>
+  <div class="lo-text-wrap">
+    <div class="lo-title">หวยสำหรับคนสวย</div>
+    <div class="lo-status" id="loStatus"><span class="lo-dots">กำลังโหลดข้อมูล</span></div>
+    <div id="loRetry" style="display:none" class="lo-retry-badge">🔄 กำลังลองใหม่...</div>
+  </div>
+</div>
 
 <header>
   <div class="logo">หวยสำหรับคนสวย</div>
@@ -255,26 +388,70 @@ function parseDetail(res) {
   return { date: res.date, prizeMap };
 }
 
+// ===== LOADING OVERLAY =====
+(function(){
+  // Generate twinkling stars
+  const container = document.getElementById('loStars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='lo-star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--del:${Math.random()*4}s`;
+    container.appendChild(s);
+  }
+})();
+
+function showLoadingOverlay(){ document.getElementById('loadingOverlay').classList.remove('hidden'); }
+function hideLoadingOverlay(){ document.getElementById('loadingOverlay').classList.add('hidden'); }
+function setLoStatus(msg){ document.getElementById('loStatus').innerHTML=`<span class="lo-dots">${msg}</span>`; }
+function setLoRetry(show,attempt){
+  const el=document.getElementById('loRetry');
+  if(show){el.style.display='inline-block';el.textContent=`Wait ${attempt}`;}
+  else{el.style.display='none';}
+}
+
 async function init() {
-  try {
-    // 1. Get list page 1 to get IDs
-    const listRes = await apiFetch('/list/1');
-    if (listRes.status !== 'success') throw new Error('list failed');
-    listCache = listRes.response; // [{id, date, url}]
+  showLoadingOverlay();
+  let attempt = 0;
+  while(true){
+    attempt++;
+    try {
+      if(attempt > 1){
+        setLoRetry(true, attempt);
+        setLoStatus('Loading');
+      } else {
+        setLoRetry(false);
+        setLoStatus('Loading');
+      }
 
-    // 2. Fetch latest (first in list)
-    const firstId = listCache[0].id;
-    latestId = firstId;
-    const detailRes = await apiFetch('/lotto/' + firstId);
-    if (detailRes.status !== 'success') throw new Error('detail failed');
-    latestData = parseDetail(detailRes.response);
+      // 1. Get list page 1 to get IDs
+      const listRes = await apiFetch('/list/1');
+      if (listRes.status !== 'success') throw new Error('list failed');
+      listCache = listRes.response;
 
-    document.getElementById('periodDisplay').textContent = '📅 งวดประจำวันที่ ' + latestData.date;
-    renderResults(latestData);
-    populateHistoryDates();
-  } catch(e) {
-    document.getElementById('periodDisplay').textContent = '❌ โหลดไม่ได้: ' + e.message;
-    console.error(e);
+      setLoStatus('Loading');
+
+      // 2. Fetch latest (first in list)
+      const firstId = listCache[0].id;
+      latestId = firstId;
+      const detailRes = await apiFetch('/lotto/' + firstId);
+      if (detailRes.status !== 'success') throw new Error('detail failed');
+      latestData = parseDetail(detailRes.response);
+
+      document.getElementById('periodDisplay').textContent = '📅 งวดประจำวันที่ ' + latestData.date;
+      renderResults(latestData);
+      populateHistoryDates();
+
+      setLoRetry(false);
+      hideLoadingOverlay();
+      break; // success!
+
+    } catch(e) {
+      console.warn(`Attempt ${attempt} failed:`, e.message);
+      const wait = Math.min(1000 + attempt * 500, 8000);
+      setLoStatus(`Loading`);
+      setLoRetry(true, attempt);
+      await new Promise(r => setTimeout(r, wait));
+    }
   }
 }
 
@@ -503,8 +680,8 @@ async function generateLucky(){
   document.getElementById('luckyResult').innerHTML='<div class="loading"><div class="spinner"></div>วิเคราะห์ดวงดาว...</div>';
   try{
     // Fetch multiple pages of IDs
-    const pages=await Promise.allSettled([1,2,3].map(p=>apiFetch('/list/'+p)));
-    const ids=pages.flatMap(r=>r.status==='fulfilled'&&r.value.status==='success'?r.value.response.map(x=>x.id):[]).slice(0,15);
+    const pages=await Promise.allSettled([1,2].map(p=>apiFetch('/list/'+p)));
+    const ids=pages.flatMap(r=>r.status==='fulfilled'&&r.value.status==='success'?r.value.response.map(x=>x.id):[]).slice(0,10);
 
     // Fetch details
     const details=await Promise.allSettled(ids.map(id=>
