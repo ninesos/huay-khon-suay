@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หวยสำหรับคนสวย</title>
+<link rel="icon" type="image/png" href="logo_huay_khon_suay.png">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#FFD700;--gold2:#FFA500;--red:#c0392b;--dark:#1a0a00;--bg:#0d0600;--green:#27ae60;--teal:#1abc9c; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:'Kanit',sans-serif;color:#fff;min-height:100vh;overflow-x:hidden}
+  header{text-align:center;padding:36px 20px 16px}
+  .logo{font-family:'Mitr',sans-serif;font-size:clamp(2rem,6vw,3.2rem);font-weight:700;background:linear-gradient(135deg,#FFD700,#FF6B00,#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(255,165,0,.5))}
+  .subtitle{color:rgba(255,200,100,.6);font-size:.95rem;margin-top:4px}
+  .period-badge{display:inline-block;background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a0a00;font-weight:700;padding:6px 20px;border-radius:50px;margin-top:10px;font-size:.95rem}
+  .nav-tabs{display:flex;justify-content:center;gap:8px;padding:16px 20px;flex-wrap:wrap}
+  .tab-btn{background:rgba(255,165,0,.1);border:1.5px solid rgba(255,165,0,.3);color:rgba(255,200,100,.8);padding:9px 20px;border-radius:50px;cursor:pointer;font-family:'Kanit',sans-serif;font-size:.9rem;transition:all .2s}
+  .tab-btn:hover,.tab-btn.active{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a0a00;border-color:transparent;font-weight:700;box-shadow:0 4px 20px rgba(255,165,0,.35)}
+  .page{display:none;padding:0 16px 50px;max-width:900px;margin:0 auto}
+  .page.active{display:block}
+  .card{background:linear-gradient(135deg,rgba(255,165,0,.07),rgba(255,50,0,.04));border:1px solid rgba(255,165,0,.22);border-radius:18px;padding:24px;margin-bottom:18px}
+  .card h2{font-size:1.3rem;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .ticket-input{flex:1;min-width:180px;background:rgba(255,255,255,.05);border:2px solid rgba(255,165,0,.4);border-radius:12px;padding:13px 18px;color:#fff;font-family:'Mitr',sans-serif;font-size:1.8rem;font-weight:600;letter-spacing:8px;text-align:center;outline:none;transition:border-color .2s}
+  .ticket-input:focus{border-color:var(--gold)}
+  .ticket-input::placeholder{color:rgba(255,255,255,.2);letter-spacing:4px;font-size:1.1rem}
+  .check-btn{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a0a00;border:none;border-radius:12px;padding:13px 26px;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .check-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(255,165,0,.4)}
+  #checkResult{margin-top:16px}
+  .prize-card{background:linear-gradient(135deg,rgba(39,174,96,.15),rgba(26,188,156,.08));border:1.5px solid rgba(39,174,96,.4);border-radius:14px;padding:22px;text-align:center;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+  @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+  .prize-title{font-size:1.6rem;font-weight:700;color:var(--teal);margin-bottom:6px}
+  .prize-amount{font-family:'Mitr',sans-serif;font-size:2.4rem;color:var(--gold);font-weight:700}
+  .prize-odds{color:rgba(255,255,255,.55);font-size:.85rem;margin-top:8px}
+  /* ===== RESULTS LAYOUT ===== */
+  .prize-first-banner{background:linear-gradient(135deg,rgba(255,180,0,.18),rgba(255,100,0,.1));border:2px solid rgba(255,215,0,.55);border-radius:18px;padding:28px 20px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden}
+  .prize-first-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,215,0,.12),transparent 65%);pointer-events:none}
+  .prize-first-crown{font-size:2rem;margin-bottom:4px}
+  .prize-first-label{font-size:.85rem;color:rgba(255,200,100,.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+  .prize-first-number{font-family:'Mitr',sans-serif;font-size:clamp(3rem,10vw,5rem);font-weight:700;color:var(--gold);letter-spacing:16px;line-height:1;filter:drop-shadow(0 0 16px rgba(255,165,0,.6))}
+  .prize-first-amount{font-size:1rem;color:rgba(255,200,100,.65);margin-top:10px}
+
+  .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:700px){.results-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:440px){.results-grid{grid-template-columns:1fr 1fr}}
+
+  .result-item{background:rgba(255,165,0,.05);border:1px solid rgba(255,165,0,.18);border-radius:12px;padding:14px;height:110px;display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+  .result-item:hover{border-color:rgba(255,165,0,.45);background:rgba(255,165,0,.09)}
+  .result-label{font-size:.72rem;color:rgba(255,200,100,.65);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+  .numbers-preview{display:flex;flex-wrap:wrap;gap:4px;overflow:hidden;flex:1;align-content:flex-start}
+  .num-badge{background:rgba(255,255,255,.06);border:1px solid rgba(255,165,0,.18);border-radius:6px;padding:3px 9px;font-family:'Mitr',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:2px;color:#fff;white-space:nowrap}
+  .show-more-btn{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(13,6,0,.95) 60%,transparent);padding:18px 14px 8px;font-size:.72rem;color:rgba(255,165,0,.8);text-align:center;border-radius:0 0 12px 12px;}
+
+  /* Prize detail popup */
+  #prizeDetailPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  #prizeDetailPopup.show{display:flex}
+  .prize-detail-box{background:linear-gradient(135deg,#0d0600,#1a0a00);border:1.5px solid rgba(255,165,0,.35);border-radius:20px;padding:26px;max-width:520px;width:92%;max-height:80vh;display:flex;flex-direction:column;animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
+  .prize-detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0}
+  .prize-detail-title{font-size:1.1rem;font-weight:700;color:var(--gold)}
+  .prize-detail-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+  .prize-detail-close:hover{background:rgba(255,255,255,.2)}
+  .prize-detail-body{overflow-y:auto;flex:1}
+  .prize-detail-nums{display:flex;flex-wrap:wrap;gap:8px;padding-right:4px}
+  .prize-detail-nums .num-badge{font-size:1rem;padding:6px 14px;letter-spacing:3px}
+  .history-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:rgba(255,165,0,.05);border:1px solid rgba(255,165,0,.18);border-radius:16px;padding:18px;margin-bottom:16px}
+  .form-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+  .form-group label{font-size:.8rem;color:rgba(255,200,100,.8)}
+  .form-control{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,165,0,.32);border-radius:9px;padding:9px 13px;color:#fff;font-family:'Kanit',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+  .form-control:focus{border-color:var(--gold)}
+  .form-control option{background:#1a0a00}
+  .search-btn{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a0a00;border:none;border-radius:9px;padding:9px 22px;font-family:'Kanit',sans-serif;font-weight:700;cursor:pointer;font-size:.9rem;transition:all .2s;align-self:flex-end}
+  .search-btn:hover{box-shadow:0 4px 20px rgba(255,165,0,.4)}
+  .lucky-card{background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(52,73,94,.08));border:1px solid rgba(155,89,182,.28);border-radius:18px;padding:28px;text-align:center;margin-bottom:16px}
+  .lucky-card h2{font-size:1.3rem;color:#b39ddb;margin-bottom:6px;justify-content:center}
+  .lucky-desc{color:rgba(255,255,255,.45);font-size:.88rem;margin-bottom:20px}
+  .lucky-btn{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;border:none;border-radius:50px;padding:14px 36px;font-family:'Kanit',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(155,89,182,.4)}
+  .lucky-btn:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(155,89,182,.6)}
+  .lucky-number-display{font-family:'Mitr',sans-serif;font-size:3.5rem;font-weight:700;background:linear-gradient(135deg,#FFD700,#FF6B00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:12px;animation:glow 2s ease-in-out infinite alternate}
+  @keyframes glow{from{filter:drop-shadow(0 0 10px rgba(255,165,0,.5))}to{filter:drop-shadow(0 0 25px rgba(255,165,0,.9))}}
+  .lucky-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:16px}
+  .stat-item{background:rgba(155,89,182,.1);border:1px solid rgba(155,89,182,.28);border-radius:10px;padding:12px;text-align:center}
+  .stat-digit{font-size:1.5rem;font-weight:700;color:#ce93d8;font-family:'Mitr',sans-serif}
+  .stat-label{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:3px}
+  .loading{text-align:center;padding:36px;color:rgba(255,200,100,.55);font-size:1rem}
+  .spinner{width:32px;height:32px;border:3px solid rgba(255,165,0,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #popupOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  #popupOverlay.show{display:flex}
+  .popup-box{background:linear-gradient(135deg,#1a0500,#2d0800);border:2px solid var(--red);border-radius:22px;padding:26px;max-width:440px;width:90%;text-align:center;position:relative;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 0 50px rgba(192,57,43,.4)}
+  .popup-video{width:100%;border-radius:10px;max-height:280px;object-fit:cover;margin-bottom:14px}
+  .popup-msg{font-size:1.4rem;font-weight:700;color:var(--red);margin-bottom:6px}
+  .popup-submsg{color:rgba(255,255,255,.45);font-size:.9rem;margin-bottom:18px}
+  .close-popup{background:var(--red);color:#fff;border:none;border-radius:50px;padding:11px 28px;font-family:'Kanit',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+  .close-popup:hover{background:#e74c3c;transform:scale(1.05)}
+  #winPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  #winPopup.show{display:flex}
+  .win-box{background:linear-gradient(135deg,#0a1a00,#003300);border:2px solid var(--green);border-radius:22px;padding:28px;max-width:460px;width:90%;text-align:center;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 0 50px rgba(39,174,96,.4);position:relative;overflow:hidden}
+  .win-emoji{font-size:3.5rem;margin-bottom:10px}
+  .win-title{font-size:1.9rem;font-weight:700;color:var(--teal)}
+  .win-prize-name{font-size:1.2rem;color:rgba(255,255,255,.75);margin:7px 0}
+  .win-amount{font-family:'Mitr',sans-serif;font-size:2.8rem;color:var(--gold);font-weight:700}
+  .win-odds{color:rgba(255,255,255,.45);font-size:.85rem;margin:9px 0 18px}
+  .confetti-container{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .confetti-piece{position:absolute;width:8px;height:8px;top:-10px;animation:confettiFall linear forwards;border-radius:2px}
+  @keyframes confettiFall{to{transform:translateY(500px) rotate(720deg);opacity:0}}
+  .close-win{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;border:none;border-radius:50px;padding:11px 28px;font-family:'Kanit',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+  .close-win:hover{transform:scale(1.05)}
+  .error-msg{color:#e74c3c;text-align:center;padding:20px;font-size:.95rem}
+  @media(max-width:99%){.input-row{flex-direction:column}.ticket-input{font-size:1.4rem;letter-spacing:5px}.lucky-number-display{font-size:2.5rem;letter-spacing:8px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">หวยสำหรับคนสวย</div>
+  <div class="subtitle">สำหรับสายลุ้น & สายมู</div>
+  <div id="periodDisplay" class="period-badge">🔄 กำลังโหลด...</div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showPage('check',this)">🎯 ตรวจหวย</button>
+  <button class="tab-btn" onclick="showPage('results',this)">📋 ผลหวยล่าสุด</button>
+  <button class="tab-btn" onclick="showPage('history',this)">📅 ย้อนหลัง</button>
+  <button class="tab-btn" onclick="showPage('lucky',this)">🔮 สุ่มหวยสายมู</button>
+</nav>
+
+<div class="page active" id="page-check">
+  <div class="card">
+    <h2>🎟️ ใส่เลขหวยของคุณ</h2>
+    <div class="input-row">
+      <input type="text" class="ticket-input" id="ticketInput" placeholder="000000" maxlength="6"
+        oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')checkTicket()">
+      <button class="check-btn" onclick="checkTicket()">🔍 ตรวจเลย!</button>
+    </div>
+  </div>
+  <div id="checkResult"></div>
+</div>
+
+<div class="page" id="page-results">
+  <div id="resultsContent"><div class="loading"><div class="spinner"></div>กำลังโหลดผลรางวัล...</div></div>
+</div>
+
+<div class="page" id="page-history">
+  <div class="history-controls">
+    <div class="form-group">
+      <label>📅 เลือกงวด</label>
+      <select class="form-control" id="historyDate"><option value="">-- กำลังโหลด --</option></select>
+    </div>
+    <div class="form-group">
+      <label>🏆 เลือกรางวัล</label>
+      <select class="form-control" id="historyPrize">
+        <option value="all">ทุกรางวัล</option>
+        <option value="prizeFirst">รางวัลที่ 1</option>
+        <option value="prizeSecond">รางวัลที่ 2</option>
+        <option value="prizeThird">รางวัลที่ 3</option>
+        <option value="prizeForth">รางวัลที่ 4</option>
+        <option value="prizeFifth">รางวัลที่ 5</option>
+        <option value="prizeFirstNear">เลขข้างเคียงรางวัลที่ 1</option>
+        <option value="runningNumberFrontThree">เลขหน้า 3 ตัว</option>
+        <option value="runningNumberBackThree">เลขท้าย 3 ตัว</option>
+        <option value="runningNumberBackTwo">เลขท้าย 2 ตัว</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="searchHistory()">🔍 ค้นหา</button>
+  </div>
+  <div id="historyResult"><p style="color:rgba(255,255,255,.35);text-align:center;padding:20px">เลือกงวดและรางวัลที่ต้องการดู</p></div>
+</div>
+
+<div class="page" id="page-lucky">
+  <div class="lucky-card">
+    <h2>🔮 สุ่มหวยสายมู</h2>
+    <p class="lucky-desc">ระบบวิเคราะห์ความถี่ตัวเลขจากงวดที่ผ่านมา<br>แล้วคำนวณโอกาสออกในงวดถัดไป ✨</p>
+    <button class="lucky-btn" onclick="generateLucky()">🎲 ขอเลขมงคล!</button>
+    <div id="luckyResult"></div>
+  </div>
+  <div id="luckyStats"></div>
+</div>
+
+<!-- POPUP รายละเอียดรางวัล -->
+<div id="prizeDetailPopup" onclick="if(event.target===this)closePrizeDetail()">
+  <div class="prize-detail-box">
+    <div class="prize-detail-header">
+      <div class="prize-detail-title" id="prizeDetailTitle"></div>
+      <button class="prize-detail-close" onclick="closePrizeDetail()">✕</button>
+    </div>
+    <div class="prize-detail-body">
+      <div class="prize-detail-nums" id="prizeDetailNums"></div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP ไม่ถูก -->
+<div id="popupOverlay" onclick="if(event.target===this)closePopupBtn()">
+  <div class="popup-box">
+    <video class="popup-video" id="popupVideo" autoplay loop playsinline></video>
+    <div class="popup-msg" id="popupMsg">💀 ไม่ถูกสักใบ!</div>
+    <div class="popup-submsg" id="popupSubmsg"></div>
+    <button class="close-popup" onclick="closePopupBtn()">😭 รับทราบ</button>
+  </div>
+</div>
+
+<!-- POPUP ถูกรางวัล -->
+<div id="winPopup" onclick="if(event.target===this)closeWinPopupBtn()">
+  <div class="win-box">
+    <div class="confetti-container" id="confettiContainer"></div>
+    <div class="win-emoji">🎉🥳🎊</div>
+    <div class="win-title">ถูกรางวัล!</div>
+    <div class="win-prize-name" id="winPrizeName"></div>
+    <div class="win-amount" id="winAmount"></div>
+    <div class="win-odds" id="winOdds"></div>
+    <button class="close-win" onclick="closeWinPopupBtn()">🎉 ดีมากๆ!</button>
+  </div>
+</div>
+
+<script>
+// ===== VIDEO =====
+const VIDEO_SRC = "haha.mp4";
+
+// ===== API structure (real endpoints) =====
+// GET /list/{page}  → { status, response: [{id, date, url}] }
+// GET /lotto/{id}   → { status, response: { date, prizes:[{id,name,number:[]}], runningNumbers:[...] } }
+
+const PRIZE_INFO = {
+  prizeFirst:           { label:'รางวัลที่ 1',               amount:6000000, odds:1000000 },
+  prizeFirstNear:       { label:'เลขข้างเคียงรางวัลที่ 1',   amount:100000,  odds:500000 },
+  prizeSecond:          { label:'รางวัลที่ 2',               amount:200000,  odds:100000 },
+  prizeThird:           { label:'รางวัลที่ 3',               amount:80000,   odds:40000 },
+  prizeForth:          { label:'รางวัลที่ 4',               amount:40000,   odds:10000 },
+  prizeFifth:           { label:'รางวัลที่ 5',               amount:20000,   odds:2500 },
+  runningNumberFrontThree:{ label:'เลขหน้า 3 ตัว',           amount:4000,    odds:1000 },
+  runningNumberBackThree: { label:'เลขท้าย 3 ตัว',           amount:4000,    odds:1000 },
+  runningNumberBackTwo:   { label:'เลขท้าย 2 ตัว',           amount:2000,    odds:100 },
+};
+
+let latestData = null;   // parsed lotto detail
+let latestId = null;
+let listCache = [];      // [{id,date}]
+
+const BASE = 'https://lotto.api.rayriffy.com';
+
+async function apiFetch(path) {
+  const r = await fetch(BASE + path);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// Parse lotto detail into normalized object
+function parseDetail(res) {
+  // res.prizes = [{id,name,number:[]}]
+  // res.runningNumbers = [{id,name,number:[]}]
+  const prizeMap = {};
+  (res.prizes||[]).forEach(p => { prizeMap[p.id] = p.number || []; });
+  (res.runningNumbers||[]).forEach(p => { prizeMap[p.id] = p.number || []; });
+  return { date: res.date, prizeMap };
+}
+
+async function init() {
+  try {
+    // 1. Get list page 1 to get IDs
+    const listRes = await apiFetch('/list/1');
+    if (listRes.status !== 'success') throw new Error('list failed');
+    listCache = listRes.response; // [{id, date, url}]
+
+    // 2. Fetch latest (first in list)
+    const firstId = listCache[0].id;
+    latestId = firstId;
+    const detailRes = await apiFetch('/lotto/' + firstId);
+    if (detailRes.status !== 'success') throw new Error('detail failed');
+    latestData = parseDetail(detailRes.response);
+
+    document.getElementById('periodDisplay').textContent = '📅 งวดประจำวันที่ ' + latestData.date;
+    renderResults(latestData);
+    populateHistoryDates();
+  } catch(e) {
+    document.getElementById('periodDisplay').textContent = '❌ โหลดไม่ได้: ' + e.message;
+    console.error(e);
+  }
+}
+
+function populateHistoryDates() {
+  const sel = document.getElementById('historyDate');
+  sel.innerHTML = listCache.map(item =>
+    `<option value="${item.id}">${item.date}</option>`
+  ).join('');
+}
+
+function fmtMoney(n) { return n.toLocaleString('th-TH'); }
+
+// ===== PRIZE DETAIL POPUP =====
+const _prizeDetailStore = {};
+function openPrizeDetail(key) {
+  const d = _prizeDetailStore[key];
+  if (!d) return;
+  document.getElementById('prizeDetailTitle').textContent = d.label + ' — ' + fmtMoney(d.amount) + ' บาท';
+  document.getElementById('prizeDetailNums').innerHTML = d.nums.map(n=>`<span class="num-badge">${n}</span>`).join('');
+  document.getElementById('prizeDetailPopup').classList.add('show');
+}
+function closePrizeDetail() { document.getElementById('prizeDetailPopup').classList.remove('show'); }
+
+// ===== RENDER RESULTS =====
+function makeResultItem(key, label, amount, nums) {
+  _prizeDetailStore[key] = { label, amount, nums };
+  const preview = nums.slice(0, 12); // show up to ~12 badges before overflow
+  const hasMore = nums.length > 0;
+  const badgesHtml = preview.map(n=>`<span class="num-badge">${n}</span>`).join('');
+  const moreHint = hasMore ? `<div class="show-more-btn">👆 กดเพื่อดูทั้งหมด (${nums.length} ตัว)</div>` : '';
+  return `<div class="result-item" onclick="openPrizeDetail('${key}')">
+    <div class="result-label">${label}</div>
+    <div class="numbers-preview">${badgesHtml}</div>
+    ${moreHint}
+  </div>`;
+}
+
+function renderResults(data) {
+  const pm = data.prizeMap;
+  const firstNums = pm['prizeFirst'] || [];
+  _prizeDetailStore['prizeFirst'] = { label:'รางวัลที่ 1', amount:6000000, nums:firstNums };
+  document.getElementById('resultsContent').innerHTML = `
+    <h2 style="color:var(--gold);font-size:1.1rem;margin-bottom:14px">🏆 ผลรางวัล — ${data.date}</h2>
+    <div class="prize-first-banner" onclick="openPrizeDetail('prizeFirst')" style="cursor:pointer">
+      <div class="prize-first-crown">👑</div>
+      <div class="prize-first-label">รางวัลที่ 1</div>
+      <div class="prize-first-number">${firstNums[0] || '------'}</div>
+      <div class="prize-first-amount">6,000,000 บาท</div>
+    </div>
+    <div class="results-grid">
+      ${makeResultItem('prizeFirstNear','🔢 เลขข้างเคียงที่ 1',100000, pm['prizeFirstNear']||[])}
+      ${makeResultItem('prizeSecond','🥈 รางวัลที่ 2',200000, pm['prizeSecond']||[])}
+      ${makeResultItem('prizeThird','🥉 รางวัลที่ 3',80000, pm['prizeThird']||[])}
+      ${makeResultItem('prizeForth','4️⃣ รางวัลที่ 4',40000, pm['prizeForth']||[])}
+      ${makeResultItem('prizeFifth','5️⃣ รางวัลที่ 5',20000, pm['prizeFifth']||[])}
+      ${makeResultItem('runningNumberFrontThree','📍 หน้า 3 ตัว',4000, pm['runningNumberFrontThree']||[])}
+      ${makeResultItem('runningNumberBackThree','📍 ท้าย 3 ตัว',4000, pm['runningNumberBackThree']||[])}
+      ${makeResultItem('runningNumberBackTwo','2️⃣ ท้าย 2 ตัว',2000, pm['runningNumberBackTwo']||[])}
+    </div>`;
+}
+
+// ===== CHECK TICKET =====
+function checkTicket() {
+  const t = document.getElementById('ticketInput').value.trim();
+  if (t.length < 2) { alert('ใส่เลขอย่างน้อย 2 หลักนะ'); return; }
+  if (!latestData) { alert('ยังโหลดข้อมูลไม่เสร็จ'); return; }
+  const won = findPrizes(t, latestData.prizeMap);
+  won.length ? showWinPopup(t, won) : showLoserPopup(t);
+}
+
+function findPrizes(t, pm) {
+  const results = [];
+  const t2 = t.slice(-2), t3f = t.slice(0,3), t3b = t.slice(-3);
+  const check = (key, nums) => {
+    const info = PRIZE_INFO[key];
+    if(!info) return;
+    nums.forEach(n => {
+      if (t === n) { results.push({...info, matched:n}); }
+    });
+  };
+  check('prizeFirst', pm['prizeFirst']||[]);
+  check('prizeFirstNear', pm['prizeFirstNear']||[]);
+  check('prizeSecond', pm['prizeSecond']||[]);
+  check('prizeThird', pm['prizeThird']||[]);
+  check('prizeForth', pm['prizeForth']||[]);
+  check('prizeFifth', pm['prizeFifth']||[]);
+  // 3-digit front
+  if(t.length >= 3)(pm['runningNumberFrontThree']||[]).forEach(n=>{
+    if(t3f===n||t===n){results.push({...PRIZE_INFO.runningNumberFrontThree,matched:n});}
+  });
+  // 3-digit back
+  if(t.length >= 3)(pm['runningNumberBackThree']||[]).forEach(n=>{
+    if(t3b===n||t===n){results.push({...PRIZE_INFO.runningNumberBackThree,matched:n});}
+  });
+  // 2-digit back
+  if(t.length >= 2)(pm['runningNumberBackTwo']||[]).forEach(n=>{
+    if(t2===n||t===n){results.push({...PRIZE_INFO.runningNumberBackTwo,matched:n});}
+  });
+  return results;
+}
+
+// ===== WIN POPUP =====
+function showWinPopup(t, prizes) {
+  const total = prizes.reduce((a,b)=>a+b.amount,0);
+  const best = prizes.reduce((a,b)=>a.amount>b.amount?a:b);
+  document.getElementById('winPrizeName').textContent = prizes.map(p=>p.label).join(' + ');
+  document.getElementById('winAmount').textContent = '฿' + fmtMoney(total);
+  document.getElementById('winOdds').textContent = `โอกาสถูก: 1 ใน ${fmtMoney(best.odds)}`;
+  spawnConfetti();
+  document.getElementById('winPopup').classList.add('show');
+  try{ const ctx=new(window.AudioContext||window.webkitAudioContext)();playWinSound(ctx); }catch(e){}
+}
+function playWinSound(ctx){
+  [523,659,784,1047].forEach((f,i)=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=f;o.type='sine';
+    g.gain.setValueAtTime(.3,ctx.currentTime+i*.15);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.15+.3);
+    o.start(ctx.currentTime+i*.15);o.stop(ctx.currentTime+i*.15+.4);
+  });
+}
+function spawnConfetti(){
+  const c=document.getElementById('confettiContainer'); c.innerHTML='';
+  const cols=['#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}%;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;`;
+    c.appendChild(el);
+  }
+}
+function closeWinPopupBtn(){document.getElementById('winPopup').classList.remove('show');}
+
+// ===== LOSER POPUP =====
+const loserMsgs=[
+  ['💀 ไม่ถูกสักใบ!','ลองซื้อเพิ่มนะ...'],
+  ['😭 หมดแล้วจ้า','ตังค์หายไปอีกแล้ว'],
+  ['😭 ไม่ถูกอีกแล้ว!','สงสัยดวงมันไปหน้าบ้านคนอื่น'],
+  ['🤡 พลาดอีกครั้ง!','อยากจนไปถึงไหนอ่า'],
+  ['💸 เสียเงินแล้ว','ซื้อข้าวกินดีกว่าหวยนะ'],
+  ['💸 เสียดายจัง','เอาเงินซื้อหวยมาให้ผมดีกว่า'],
+  ['🤡 ถูกแดรก!','รอบหน้าเอาใหม่น้าา'],
+  ['🎭 น่าสงสาร','สายมูอย่างเดียวคงไม่พอ'],
+];
+function showLoserPopup(t){
+  const[msg,sub]=loserMsgs[~~(Math.random()*loserMsgs.length)];
+  document.getElementById('popupMsg').textContent=msg;
+  document.getElementById('popupSubmsg').textContent=`เลข ${t} — ${sub}`;
+  const vid=document.getElementById('popupVideo');
+  if(VIDEO_SRC){
+    vid.src=VIDEO_SRC;
+    vid.style.display='block';
+  } else {
+    vid.style.display='none';
+  }
+  document.getElementById('popupOverlay').classList.add('show');
+  vid.play().catch(()=>{});
+  try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.setValueAtTime(400,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(150,ctx.currentTime+.8);g.gain.setValueAtTime(.4,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.9);o.start(ctx.currentTime);o.stop(ctx.currentTime+1);}catch(e){}
+}
+function closePopupBtn(){document.getElementById('popupOverlay').classList.remove('show');document.getElementById('popupVideo').pause();}
+
+// ===== HISTORY =====
+async function searchHistory(){
+  const id=document.getElementById('historyDate').value;
+  const prize=document.getElementById('historyPrize').value;
+  if(!id){alert('เลือกงวดก่อนนะ');return;}
+  document.getElementById('historyResult').innerHTML='<div class="loading"><div class="spinner"></div>กำลังโหลด...</div>';
+  try{
+    let data;
+    if(id===latestId&&latestData){ data=latestData; }
+    else{
+      const res=await apiFetch('/lotto/'+id);
+      if(res.status!=='success') throw new Error('api error');
+      data=parseDetail(res.response);
+    }
+    renderHistoryResult(data, prize);
+  }catch(e){
+    document.getElementById('historyResult').innerHTML='<p class="error-msg">โหลดไม่ได้: '+e.message+'</p>';
+  }
+}
+
+function renderHistoryResult(data, prizeType){
+  const pm=data.prizeMap;
+  const showAll=prizeType==='all';
+  const keys=Object.keys(PRIZE_INFO);
+  const firstNums = pm['prizeFirst']||[];
+
+  let html=`<h3 style="color:var(--gold);margin-bottom:14px">📋 ผลงวด — ${data.date}</h3>`;
+
+  if(showAll || prizeType==='prizeFirst'){
+    _prizeDetailStore['prizeFirst_hist'] = { label:'รางวัลที่ 1', amount:6000000, nums:firstNums };
+    html+=`<div class="prize-first-banner" onclick="openPrizeDetail('prizeFirst_hist')" style="cursor:pointer;margin-bottom:16px">
+      <div class="prize-first-crown">👑</div>
+      <div class="prize-first-label">รางวัลที่ 1</div>
+      <div class="prize-first-number">${firstNums[0]||'------'}</div>
+      <div class="prize-first-amount">6,000,000 บาท</div>
+    </div>`;
+  }
+
+  if(showAll){
+    html+='<div class="results-grid">';
+    keys.filter(k=>k!=='prizeFirst').forEach(k=>{
+      const info=PRIZE_INFO[k];
+      html+=makeResultItem('hist_'+k, info.label, info.amount, pm[k]||[]);
+    });
+    html+='</div>';
+  } else if(prizeType!=='prizeFirst') {
+    // single prize — show full list
+    const info=PRIZE_INFO[prizeType];
+    if(info){
+      const nums=pm[prizeType]||[];
+      html+=`<div style="background:rgba(255,165,0,.05);border:1px solid rgba(255,165,0,.2);border-radius:14px;padding:18px">
+        <div class="result-label" style="margin-bottom:10px">${info.label} — ${fmtMoney(info.amount)} บาท</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">${nums.map(n=>`<span class="num-badge" style="font-size:1rem;padding:6px 14px;letter-spacing:3px">${n}</span>`).join('')}</div>
+      </div>`;
+    }
+  }
+
+  document.getElementById('historyResult').innerHTML=html;
+}
+
+// ===== LUCKY =====
+async function generateLucky(){
+  const btn=document.querySelector('.lucky-btn');
+  btn.disabled=true;btn.textContent='🔮 กำลังดูดวง...';
+  document.getElementById('luckyResult').innerHTML='<div class="loading"><div class="spinner"></div>วิเคราะห์ดวงดาว...</div>';
+  try{
+    // Fetch multiple pages of IDs
+    const pages=await Promise.allSettled([1,2,3].map(p=>apiFetch('/list/'+p)));
+    const ids=pages.flatMap(r=>r.status==='fulfilled'&&r.value.status==='success'?r.value.response.map(x=>x.id):[]).slice(0,15);
+
+    // Fetch details
+    const details=await Promise.allSettled(ids.map(id=>
+      id===latestId&&latestData?Promise.resolve(latestData):apiFetch('/lotto/'+id).then(r=>r.status==='success'?parseDetail(r.response):null)
+    ));
+    const allData=details.map(r=>r.status==='fulfilled'?r.value:null).filter(Boolean);
+
+    // Count digit frequency
+    const freq={};for(let i=0;i<10;i++)freq[i]=0;
+    allData.forEach(d=>{
+      const collect=(key,w=1)=>(d.prizeMap[key]||[]).forEach(n=>n.split('').forEach(c=>freq[parseInt(c)]+=w));
+      collect('runningNumberBackTwo',2);
+      collect('runningNumberBackThree',1.5);
+      collect('runningNumberFrontThree',1.5);
+      collect('prizeFirst',1);
+    });
+
+    const total=Object.values(freq).reduce((a,b)=>a+b)||1;
+    const probs=Object.values(freq).map(w=>w/total);
+    function wr(){let r=Math.random();for(let i=0;i<10;i++){r-=probs[i];if(r<=0)return i;}return~~(Math.random()*10);}
+    const lucky=Array.from({length:6},()=>wr()).join('');
+
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('luckyResult').innerHTML=`
+      <div style="animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)">
+        <p style="color:rgba(255,255,255,.45);margin:20px 0 10px;font-size:.85rem">✨ เลขมงคลจาก ${allData.length} งวดย้อนหลัง</p>
+        <div class="lucky-number-display">${lucky}</div>
+        <p style="color:rgba(255,165,0,.55);font-size:.82rem;margin-top:8px">ท้าย 2 ตัว: ${lucky.slice(-2)} | ท้าย 3 ตัว: ${lucky.slice(-3)}</p>
+        <div class="lucky-stats" style="margin-top:18px">
+          ${sorted.map(([d,s])=>`<div class="stat-item"><div class="stat-digit">${d}</div><div class="stat-label">ความถี่ ${Math.round(s)}</div></div>`).join('')}
+        </div>
+        <p style="color:rgba(255,255,255,.25);font-size:.72rem;margin-top:14px">⚠️ เพื่อความบันเทิงเท่านั้น ไม่ใช่คำทำนายจริง 😄</p>
+      </div>`;
+  }catch(e){
+    const lucky=Array.from({length:6},()=>~~(Math.random()*10)).join('');
+    document.getElementById('luckyResult').innerHTML=`<div style="margin-top:16px"><div class="lucky-number-display">${lucky}</div><p style="color:rgba(255,165,0,.4);font-size:.8rem;margin-top:8px">(โหมดสุ่มฉุกเฉิน)</p></div>`;
+  }finally{
+    btn.disabled=false;btn.textContent='🎲 ขอเลขมงคลอีกครั้ง!';
+  }
+}
+
+// ===== PAGE =====
+function showPage(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+}
+
+init();
+</script>
+</body>
+</html>
