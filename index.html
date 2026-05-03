@@ -680,8 +680,8 @@ async function generateLucky(){
   document.getElementById('luckyResult').innerHTML='<div class="loading"><div class="spinner"></div>วิเคราะห์ดวงดาว...</div>';
   try{
     // Fetch multiple pages of IDs
-    const pages=await Promise.allSettled([1,2].map(p=>apiFetch('/list/'+p)));
-    const ids=pages.flatMap(r=>r.status==='fulfilled'&&r.value.status==='success'?r.value.response.map(x=>x.id):[]).slice(0,10);
+    const pages=await Promise.allSettled([1,2,3,4,5].map(p=>apiFetch('/list/'+p)));
+    const ids=pages.flatMap(r=>r.status==='fulfilled'&&r.value.status==='success'?r.value.response.map(x=>x.id):[]).slice(0,100);
 
     // Fetch details
     const details=await Promise.allSettled(ids.map(id=>
